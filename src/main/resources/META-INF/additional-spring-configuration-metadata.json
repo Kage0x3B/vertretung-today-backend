@@ -14,6 +14,16 @@
       "name": "jwt.expiration",
       "type": "java.lang.Long",
       "description": "Description for jwt.expiration."
+    },
+    {
+      "name": "moodle.apiUser",
+      "type": "java.lang.String",
+      "description": "Description for moodle.apiUser."
+    },
+    {
+      "name": "moodle.apiPassword",
+      "type": "java.lang.String",
+      "description": "Description for moodle.apiPassword."
     }
   ]
 }
