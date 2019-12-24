@@ -1,4 +1,12 @@
-spring.jpa.hibernate.ddl-auto=update
-spring.datasource.url=jdbc:mysql://${MYSQL_HOST:localhost}:3306/vertretungtoday
-spring.datasource.username=vertretungtoday
-spring.datasource.password=
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: 'jdbc:mysql://${MYSQL_HOST:localhost}:3306/vertretungtoday'
+    username: 'vertretungtoday'
+    password: ''
+jwt:
+  header: Authorization
+  secret: MyExtremelySecretiveSecret
+  expiration: 604800
