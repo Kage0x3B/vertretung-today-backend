@@ -43,7 +43,6 @@ public class MoodleApi {
 
 		try(Response response = client.newCall(request).execute()) {
 			Document doc = Jsoup.parse(response.body().string(), url);
-			response.body().close();
 
 			List<Integer> sectionIdList = new ArrayList<>();
 
@@ -69,7 +68,6 @@ public class MoodleApi {
 
 		try(Response response = client.newCall(request).execute()) {
 			Document doc = Jsoup.parse(response.body().string(), url);
-			response.body().close();
 
 			List<Integer> resourceIdList = new ArrayList<>();
 
@@ -98,7 +96,6 @@ public class MoodleApi {
 				return new MoodleResourceInfo(resourceId, MoodleResourceInfo.ResourceType.FILE, response.header("Location"));
 			} else {
 				Document doc = Jsoup.parse(response.body().string(), url);
-				response.body().close();
 
 				Element resourceIframe = doc.selectFirst("#resourceobject");
 
@@ -139,13 +136,13 @@ public class MoodleApi {
 
 		Request request = new Request.Builder().url(resourceInfo.getUrl()).build();
 
-		try(Response response = client.newCall(request).execute()) {
-			if(response.code() >= 400) {
-				throw new MoodleApiException("Error response code " + response.code() + " when fetching resource " + resourceInfo);
-			}
+		Response response = client.newCall(request).execute();
 
-			return response;
+		if(response.code() >= 400) {
+			throw new MoodleApiException("Error response code " + response.code() + " when fetching resource " + resourceInfo);
 		}
+
+		return response;
 	}
 
 	public boolean isAccountValid(String username, String password) throws IOException {

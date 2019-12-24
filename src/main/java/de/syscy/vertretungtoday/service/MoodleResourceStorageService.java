@@ -1,0 +1,46 @@
+package de.syscy.vertretungtoday.service;
+
+import de.syscy.vertretungtoday.model.MoodleResource;
+import de.syscy.vertretungtoday.moodle.MoodleResourceInfo;
+import de.syscy.vertretungtoday.repository.MoodleResourceRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
+@Service
+public class MoodleResourceStorageService {
+	private MoodleResourceRepository resourceRepository;
+	private long resourceExpiration;
+
+	public MoodleResourceStorageService(MoodleResourceRepository resourceRepository, @Value("${resourceStorage.expiration}") Long resourceExpiration) {
+		this.resourceRepository = resourceRepository;
+		this.resourceExpiration = resourceExpiration;
+	}
+
+	public MoodleResource store(MoodleResource resource) {
+		return resourceRepository.saveAndFlush(resource);
+	}
+
+	public java.util.List<MoodleResource> storeAll(Iterable<MoodleResource> resources) {
+		return resourceRepository.saveAll(resources);
+	}
+
+	public Optional<MoodleResource> retrieveByResourceInfo(MoodleResourceInfo resourceInfo) {
+		return resourceRepository.findFirstByResourceId(resourceInfo.getId());
+	}
+
+	public Optional<MoodleResource> retrieveByFileName(String fileName) {
+		return resourceRepository.findFirstByFileNameOrderByModifiedDate(fileName);
+	}
+
+	public int cleanStorage() {
+		Date expirationDate = new Date(new Date().getTime() - resourceExpiration * 1000);
+		List<MoodleResource> expiredResourceList = resourceRepository.findAllByModifiedDateBefore(expirationDate);
+		resourceRepository.deleteAll(expiredResourceList);
+
+		return expiredResourceList.size();
+	}
+}

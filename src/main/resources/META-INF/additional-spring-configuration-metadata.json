@@ -3,27 +3,32 @@
     {
       "name": "jwt.header",
       "type": "java.lang.String",
-      "description": "Description for jwt.header."
+      "description": "Header used when retrieving JWTs."
     },
     {
       "name": "jwt.secret",
       "type": "java.lang.String",
-      "description": "Description for jwt.secret."
+      "description": "Secret for generating and checking JWTs."
     },
     {
       "name": "jwt.expiration",
       "type": "java.lang.Long",
-      "description": "Description for jwt.expiration."
+      "description": "Expiration time for JWTs (in seconds)."
     },
     {
       "name": "moodle.apiUser",
       "type": "java.lang.String",
-      "description": "Description for moodle.apiUser."
+      "description": "Moodle account username for use with the api."
     },
     {
       "name": "moodle.apiPassword",
       "type": "java.lang.String",
-      "description": "Description for moodle.apiPassword."
+      "description": "Moodle account password for use with the api."
+    },
+    {
+      "name": "resourceStorage.resourceExpiration",
+      "type": "java.lang.Long",
+      "description": "Expiration time for resources stored in the database (in seconds)."
     }
   ]
 }

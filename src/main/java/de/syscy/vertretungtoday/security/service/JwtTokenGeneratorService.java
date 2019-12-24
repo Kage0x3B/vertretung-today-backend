@@ -12,7 +12,7 @@ import java.util.HashMap;
 @Component
 public class JwtTokenGeneratorService {
 	private String secret;
-	private Long expiration;
+	private long expiration;
 
 	public JwtTokenGeneratorService(@Value("${jwt.secret}") String secret, @Value("${jwt.expiration}") Long expiration) {
 		this.secret = secret;
@@ -34,6 +34,6 @@ public class JwtTokenGeneratorService {
 	}
 
 	private Date calculateExpirationDate(Date createdDate) {
-		return new Date(createdDate.getTime() + expiration * 10000);
+		return new Date(createdDate.getTime() + expiration * 1000);
 	}
 }

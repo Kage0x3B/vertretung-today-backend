@@ -1,8 +1,7 @@
-package de.syscy.vertretungtoday.route;
+package de.syscy.vertretungtoday.controller;
 
 import de.syscy.vertretungtoday.moodle.MoodleApi;
 import de.syscy.vertretungtoday.moodle.MoodleApiException;
-import de.syscy.vertretungtoday.moodle.MoodleResourceInfo;
 import de.syscy.vertretungtoday.security.request.LoginRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

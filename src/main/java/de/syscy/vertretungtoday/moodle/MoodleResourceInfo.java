@@ -8,7 +8,7 @@ public class MoodleResourceInfo {
 	private final ResourceType type;
 	private final String url;
 
-	public static enum ResourceType {
+	public enum ResourceType {
 		FILE,
 		EMBEDDED_PAGE
 	}
