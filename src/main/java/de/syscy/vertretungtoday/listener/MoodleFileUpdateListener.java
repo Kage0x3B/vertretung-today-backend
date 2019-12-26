@@ -82,7 +82,7 @@ public class MoodleFileUpdateListener {
 		MoodleMessageOfTheDay motd = new MoodleMessageOfTheDay();
 
 		Element motdElement = document.selectFirst("table.info > tbody > tr > td");
-		motd.setMessage(motdElement.text());
+		motd.setMessage(motdElement.html());
 		motd.setDate(date);
 
 		return motd;

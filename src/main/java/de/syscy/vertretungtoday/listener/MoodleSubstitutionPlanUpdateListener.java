@@ -1,6 +1,7 @@
 package de.syscy.vertretungtoday.listener;
 
 import de.syscy.vertretungtoday.event.SubstitutionPlanUpdateEvent;
+import de.syscy.vertretungtoday.model.SubstitutionEntry;
 import de.syscy.vertretungtoday.repository.MotdRepository;
 import de.syscy.vertretungtoday.repository.SubstitutionInfoRepository;
 import org.slf4j.Logger;
@@ -26,8 +27,11 @@ public class MoodleSubstitutionPlanUpdateListener {
 	public void onSubstitutionPlanUpdate(SubstitutionPlanUpdateEvent event) {
 		LOGGER.info("Updating substitution plan for " + event.getSubstitutionPlan().getDate());
 
-		substitutionInfoRepository.saveAll(event.getSubstitutionPlan().getSubstitutionEntries());
-		substitutionInfoRepository.flush();
+		for(SubstitutionEntry entry : event.getSubstitutionPlan().getSubstitutionEntries()) {
+			entry.updateIdentifier();
+			substitutionInfoRepository.save(entry);
+		}
+
 		motdRepository.saveAndFlush(event.getSubstitutionPlan().getMessageOfTheDay());
 	}
 }

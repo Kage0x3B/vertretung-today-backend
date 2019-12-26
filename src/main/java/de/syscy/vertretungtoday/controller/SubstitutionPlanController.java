@@ -18,7 +18,7 @@ public class SubstitutionPlanController {
 		this.substitutionPlanService = substitutionPlanService;
 	}
 
-	@PostMapping("/get/{day}")
+	@GetMapping("/get/{day}")
 	public ResponseEntity<MoodleSubstitutionPlan> getSubstitutions(@PathVariable("day") String day, @RequestParam(value = "grade", defaultValue = "-1") int grade) {
 		SubstitutionDate date = SubstitutionDate.fromString(day);
 

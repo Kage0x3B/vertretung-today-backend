@@ -31,13 +31,13 @@ public class MoodleSubstitutionPlanService {
 		//TODO: Cache this result, at least for a few minutes or with invalidation by an update event?
 		MoodleSubstitutionPlan substitutionPlan = new MoodleSubstitutionPlan();
 
-		MoodleMessageOfTheDay motd = null;
+		Optional<MoodleMessageOfTheDay> motd = Optional.empty();
 		List<SubstitutionEntry> substitutionEntries = null;
 
 		LocalDate today = LocalDate.now();
 
 		if(date == SubstitutionDate.TODAY) {
-			motd = motdRepository.findFirstByDate(today);
+			motd = motdRepository.findById(today);
 
 			if(grade == -1) {
 				substitutionEntries = infoRepository.findAllByDay(today);
@@ -58,7 +58,7 @@ public class MoodleSubstitutionPlanService {
 			throw new IllegalStateException("substitutionEntries is null");
 		}
 		
-		substitutionPlan.setMessageOfTheDay(motd);
+		substitutionPlan.setMessageOfTheDay(motd.orElse(null));
 		substitutionPlan.setSubstitutionEntries(substitutionEntries);
 
 		Optional<LocalDate> optDate = substitutionEntries.stream().map(SubstitutionEntry::getDay).findAny();

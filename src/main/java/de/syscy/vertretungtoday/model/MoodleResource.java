@@ -53,6 +53,11 @@ public class MoodleResource {
 		entryCreated = LocalDateTime.now();
 	}
 
+	@PreUpdate
+	public void preUpdate() {
+		entryCreated = LocalDateTime.now();
+	}
+
 	public MoodleResourceInfo toResourceInfo() {
 		return new MoodleResourceInfo(resourceId, type, url);
 	}

@@ -8,7 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Repository
-public interface SubstitutionInfoRepository extends JpaRepository<SubstitutionEntry, Integer> {
+public interface SubstitutionInfoRepository extends JpaRepository<SubstitutionEntry, String> {
 	List<SubstitutionEntry> findAllByDay(LocalDate day);
 
 	List<SubstitutionEntry> findAllByDayAfter(LocalDate day);

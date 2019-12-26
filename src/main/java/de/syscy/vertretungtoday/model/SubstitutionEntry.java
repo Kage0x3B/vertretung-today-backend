@@ -44,14 +44,18 @@ public class SubstitutionEntry {
 		return String.join("_", gradeString, courseId, String.valueOf(time), DATE_IDENTIFIER_FORMATTER.format(day));
 	}
 
+	public void updateIdentifier() {
+		id = getIdentifier();
+	}
+
 	@PrePersist
 	public void prePersist() {
-		id = getIdentifier();
+		updateIdentifier();
 	}
 
 	@PreUpdate
 	public void preUpdate() {
-		id = getIdentifier();
+		updateIdentifier();
 	}
 
 	public SubstitutionEntry copy() {
