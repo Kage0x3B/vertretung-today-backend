@@ -24,7 +24,10 @@ public class MoodleSubstitutionPlanUpdateListener {
 	@Async
 	@EventListener
 	public void onSubstitutionPlanUpdate(SubstitutionPlanUpdateEvent event) {
+		LOGGER.info("Updating substitution plan for " + event.getSubstitutionPlan().getDate());
+
 		substitutionInfoRepository.saveAll(event.getSubstitutionPlan().getSubstitutionEntries());
+		substitutionInfoRepository.flush();
 		motdRepository.saveAndFlush(event.getSubstitutionPlan().getMessageOfTheDay());
 	}
 }

@@ -16,7 +16,7 @@ public class ResourceStorageCleanupTask {
 		this.resourceStorageService = resourceStorageService;
 	}
 
-	@Scheduled(fixedDelay = 6 * 60 * 60 * 1000)
+	@Scheduled(fixedDelay = 60 * 60 * 1000)
 	public void updateMoodleResources() {
 		LOGGER.info("Cleaning up resource storage database...");
 		int expiredAmount = resourceStorageService.cleanStorage();

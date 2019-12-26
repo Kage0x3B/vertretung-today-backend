@@ -5,10 +5,7 @@ import de.syscy.vertretungtoday.model.SubstitutionDate;
 import de.syscy.vertretungtoday.service.MoodleSubstitutionPlanService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -22,13 +19,13 @@ public class SubstitutionPlanController {
 	}
 
 	@PostMapping("/get/{day}")
-	public ResponseEntity<MoodleSubstitutionPlan> getSubstitutions(@PathVariable("day") String day) {
+	public ResponseEntity<MoodleSubstitutionPlan> getSubstitutions(@PathVariable("day") String day, @RequestParam(value = "grade", defaultValue = "-1") int grade) {
 		SubstitutionDate date = SubstitutionDate.fromString(day);
 
 		if(date == null) {
 			throw new IllegalArgumentException("Invalid parameter \"day\"");
 		}
 
-		return new ResponseEntity<>(substitutionPlanService.getSubstitutionPlan(date), HttpStatus.OK);
+		return new ResponseEntity<>(substitutionPlanService.getSubstitutionPlan(date, grade), HttpStatus.OK);
 	}
 }

@@ -10,10 +10,13 @@ import javax.persistence.PrePersist;
 import javax.persistence.PreUpdate;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @Entity
 public class SubstitutionEntry {
+	private static final DateTimeFormatter DATE_IDENTIFIER_FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE;
+
 	@Id @Getter(value = AccessLevel.PRIVATE) private String id;
 
 	private int grade;
@@ -38,7 +41,7 @@ public class SubstitutionEntry {
 	private LocalDateTime modifiedDate;
 
 	public String getIdentifier() {
-		return String.join("_", gradeString, courseId, String.valueOf(time));
+		return String.join("_", gradeString, courseId, String.valueOf(time), DATE_IDENTIFIER_FORMATTER.format(day));
 	}
 
 	@PrePersist
@@ -54,6 +57,8 @@ public class SubstitutionEntry {
 	public SubstitutionEntry copy() {
 		SubstitutionEntry entry = new SubstitutionEntry();
 		entry.setGrade(grade);
+		entry.setGradeAddition(gradeAddition);
+		entry.setGradeString(gradeString);
 		entry.setCourseId(courseId);
 		entry.setTime(time);
 		entry.setCourse(course);

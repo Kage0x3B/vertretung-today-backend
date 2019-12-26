@@ -8,6 +8,7 @@ import de.syscy.vertretungtoday.util.Util;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.event.EventListener;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -41,10 +43,12 @@ public class MoodleFileUpdateListener {
 	public void onMoodleFileUpdate(MoodleFileUpdateEvent event) {
 		if(event.getResource().getType() == MoodleResourceInfo.ResourceType.EMBEDDED_PAGE && event.getResource().getUrl()
 																								  .contains("subst")) {
+			LOGGER.info("Parsing substitution info from " + event.getResource().getFileName());
 			Document document = Jsoup.parse(new String(event.getResource().getData(), StandardCharsets.UTF_8));
 
 			try {
 				MoodleSubstitutionPlan substitutionPlan = parseSubstitutionPlan(event.getResource(), document);
+				LOGGER.info("Found " + substitutionPlan.getSubstitutionEntries().size() + " substitution entries");
 				updateEventPublisher.publishEvent(this, substitutionPlan);
 			} catch(Exception ex) {
 				LOGGER.warn("Could not parse substitution plan \"" + event.getResource().getUrl() + "\"", ex);
@@ -60,14 +64,15 @@ public class MoodleFileUpdateListener {
 		substitutionPlan.setModifiedTime(resource.getModifiedDate());
 		substitutionPlan.setMessageOfTheDay(parseMOTD(document, date));
 
-		List<SubstitutionEntry> substitutionEntries = readSubstitutionEntries(extractSubstitutionEntries(document));
+		List<SubstitutionEntry> substitutionEntries = readSubstitutionEntries(extractSubstitutionEntries(document), date, resource
+				.getModifiedDate());
 		substitutionPlan.setSubstitutionEntries(substitutionEntries);
 
 		return substitutionPlan;
 	}
 
 	private LocalDate parseDate(Document document) {
-		Element dateElement = document.selectFirst("http-equiv > center > div.mon_title");
+		Element dateElement = document.selectFirst("div.mon_title");
 		String dateString = dateElement.text().trim().split(" ")[0];
 
 		return Util.parseDate(dateString);
@@ -83,7 +88,8 @@ public class MoodleFileUpdateListener {
 		return motd;
 	}
 
-	private List<SubstitutionEntry> readSubstitutionEntries(List<RawSubstitutionEntry> rawSubstitutionEntries) {
+	private List<SubstitutionEntry> readSubstitutionEntries(List<RawSubstitutionEntry> rawSubstitutionEntries, LocalDate day,
+															LocalDateTime modifiedDate) {
 		List<SubstitutionEntry> substitutionEntries = new ArrayList<>();
 
 		for(RawSubstitutionEntry rawEntry : rawSubstitutionEntries) {
@@ -95,6 +101,9 @@ public class MoodleFileUpdateListener {
 			entry.setGradeAddition(gradeAddition);
 			entry.setGradeString(rawEntry.getGrade());
 			entry.setCourseId(rawEntry.getCourseId());
+
+			entry.setType(SubstitutionType.parseType(rawEntry.getType()));
+			entry.setTypeString(rawEntry.getType());
 
 			String[] course = parseReplacement(rawEntry.getCourse());
 			entry.setCourse(course[0]);
@@ -111,6 +120,9 @@ public class MoodleFileUpdateListener {
 			entry.setMovedToNotice(rawEntry.getMovedToNotice());
 			entry.setMovedFromNotice(rawEntry.getMovedFromNotice());
 			entry.setNotice(rawEntry.getNotice());
+
+			entry.setDay(day);
+			entry.setModifiedDate(modifiedDate);
 
 			substitutionEntries.addAll(cloneEntries(entry, rawEntry.getTime()));
 		}
@@ -173,7 +185,9 @@ public class MoodleFileUpdateListener {
 
 		checkTableStructure(document);
 
-		for(Element tableRow : document.select("div.mon_list > tbody > tr:has(td)")) {
+		Elements tableBodyElements = document.select("table.mon_list > tbody > tr:has(td)");
+		LOGGER.debug("Selected " + tableBodyElements.size() + " table body elements");
+		for(Element tableRow : tableBodyElements) {
 			int index = 0;
 			String[] columnContents = new String[EXPECTED_COLUMNS];
 
@@ -201,12 +215,18 @@ public class MoodleFileUpdateListener {
 			rawSubstitutionEntries.add(substitutionEntry);
 		}
 
+		LOGGER.debug("Extracted " + rawSubstitutionEntries.size() + " substitution entries");
+
 		return rawSubstitutionEntries;
 	}
 
 	private void checkTableStructure(Document document) {
+		boolean problemFound = false;
+
 		//The second row
-		for(Element tableRow : document.select("div.mon_list > tbody > tr:has(th)")) {
+		Elements tableHeaderRowElements = document.select("table.mon_list > tbody > tr:has(th)");
+		LOGGER.debug("Selected " + tableHeaderRowElements.size() + " table header row elements");
+		for(Element tableRow : tableHeaderRowElements) {
 			if(tableRow.getElementsByTag("th").first().text().trim().isEmpty()) {
 				//Wrong row, next one
 				continue;
@@ -220,10 +240,15 @@ public class MoodleFileUpdateListener {
 				if(!headerText.contains(EXPECTED_TABLE_STRUCTURE[index])) {
 					LOGGER.warn("Substitution table structure unexpected! Expected header containing \"" + EXPECTED_TABLE_STRUCTURE[index] + "\", got \"" + tableHeader
 							.text() + "\".");
+					problemFound = true;
 				}
 
 				index++;
 			}
+		}
+
+		if(!problemFound) {
+			LOGGER.debug("Found valid table structure");
 		}
 	}
 }

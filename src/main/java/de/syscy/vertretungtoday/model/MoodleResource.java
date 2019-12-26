@@ -12,8 +12,7 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 public class MoodleResource {
-	@Id private Integer resourceId;
-
+	@Id private int resourceId;
 	private MoodleResourceInfo.ResourceType type;
 	private String url;
 	private String fileName;

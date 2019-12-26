@@ -65,7 +65,7 @@ public class MoodleSubstitutionPlanService {
 		Optional<LocalDateTime> optModifiedTime = substitutionEntries.stream().map(SubstitutionEntry::getModifiedDate).findAny();
 
 		substitutionPlan.setDate(optDate.orElse(date.getDate()));
-		substitutionPlan.setModifiedDateTime(optModifiedTime.orElse(substitutionPlan.getDate().atStartOfDay()));
+		substitutionPlan.setModifiedTime(optModifiedTime.orElse(substitutionPlan.getDate().atStartOfDay()));
 
 		return substitutionPlan;
 	}
