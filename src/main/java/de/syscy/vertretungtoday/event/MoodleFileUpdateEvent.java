@@ -1,19 +1,19 @@
 package de.syscy.vertretungtoday.event;
 
-import de.syscy.vertretungtoday.moodle.MoodleResourceInfo;
-import lombok.*;
+import de.syscy.vertretungtoday.model.MoodleResource;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.ToString;
 import org.springframework.context.ApplicationEvent;
-
-import java.util.List;
 
 @ToString
 @EqualsAndHashCode(callSuper = true)
 public class MoodleFileUpdateEvent extends ApplicationEvent {
-	private final @Getter List<MoodleResourceInfo> resourceInfoList;
+	private final @Getter MoodleResource resource;
 
-	public MoodleFileUpdateEvent(Object source, List<MoodleResourceInfo> resourceInfoList) {
+	public MoodleFileUpdateEvent(Object source, MoodleResource resource) {
 		super(source);
 
-		this.resourceInfoList = resourceInfoList;
+		this.resource = resource;
 	}
 }

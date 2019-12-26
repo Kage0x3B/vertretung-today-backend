@@ -2,10 +2,14 @@ package de.syscy.vertretungtoday;
 
 import de.syscy.vertretungtoday.security.model.Account;
 import de.syscy.vertretungtoday.security.repository.AccountRepository;
+import okhttp3.OkHttpClient;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component
 public class ApplicationStartup implements ApplicationListener<ApplicationReadyEvent> {
@@ -19,6 +23,8 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
 
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
+        Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
+
         accountRepository.deleteAll();
 
         Account account = new Account();

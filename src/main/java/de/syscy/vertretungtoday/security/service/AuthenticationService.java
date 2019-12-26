@@ -1,6 +1,6 @@
 package de.syscy.vertretungtoday.security.service;
 
-import de.syscy.vertretungtoday.security.exception.EntityNotFoundException;
+import de.syscy.vertretungtoday.exception.EntityNotFoundException;
 import de.syscy.vertretungtoday.security.repository.AccountRepository;
 import de.syscy.vertretungtoday.security.response.JwtTokenResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,7 +20,7 @@ public class AuthenticationService {
 
 	public JwtTokenResponse generateJwtToken(String username, String password) {
 		return accountRepository.findByUsername(username).stream().findAny()
-								.filter(account -> passwordEncoder.matches(password, account.getPassword()) && account.isValidated())
+								.filter(account -> passwordEncoder.matches(password, account.getPassword())/* TODO && account.isValidated()*/)
 								.map(account -> new JwtTokenResponse(jwtTokenGeneratorService.generateToken(username)))
 								.orElseThrow(() -> new EntityNotFoundException("Account not found"));
 	}

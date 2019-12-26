@@ -184,10 +184,11 @@ public class MoodleApi {
 		cachedClient = new OkHttpClient.Builder().followRedirects(false).cookieJar(new JavaNetCookieJar(cookieManager)).build();
 
 		Request loginRequest = createLoginRequest(cachedClient, apiUser, apiPassword);
-		Response response = cachedClient.newCall(loginRequest).execute();
 
-		if(!isValidLoginResponse(response)) {
-			throw new MoodleApiException("Login with api user account failed!");
+		try(Response response = cachedClient.newCall(loginRequest).execute()) {
+			if(!isValidLoginResponse(response)) {
+				throw new MoodleApiException("Login with api user account failed!");
+			}
 		}
 
 		return cachedClient;

@@ -6,7 +6,7 @@ import de.syscy.vertretungtoday.repository.MoodleResourceRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,7 +15,8 @@ public class MoodleResourceStorageService {
 	private MoodleResourceRepository resourceRepository;
 	private long resourceExpiration;
 
-	public MoodleResourceStorageService(MoodleResourceRepository resourceRepository, @Value("${resourceStorage.expiration}") Long resourceExpiration) {
+	public MoodleResourceStorageService(MoodleResourceRepository resourceRepository,
+										@Value("${resourceStorage.resourceExpiration}") Long resourceExpiration) {
 		this.resourceRepository = resourceRepository;
 		this.resourceExpiration = resourceExpiration;
 	}
@@ -37,7 +38,9 @@ public class MoodleResourceStorageService {
 	}
 
 	public int cleanStorage() {
-		Date expirationDate = new Date(new Date().getTime() - resourceExpiration * 1000);
+		LocalDateTime expirationDate = LocalDateTime.now();
+		expirationDate = expirationDate.minusSeconds(resourceExpiration);
+
 		List<MoodleResource> expiredResourceList = resourceRepository.findAllByModifiedDateBefore(expirationDate);
 		resourceRepository.deleteAll(expiredResourceList);
 

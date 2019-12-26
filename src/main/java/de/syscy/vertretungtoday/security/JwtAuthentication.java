@@ -1,16 +1,15 @@
 package de.syscy.vertretungtoday.security;
 
+import lombok.Data;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 
 import java.util.Collection;
 
+@Data
 public class JwtAuthentication implements Authentication {
 	private final String token;
-
-	public JwtAuthentication(String token) {
-		this.token = token;
-	}
+	private final String username;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {

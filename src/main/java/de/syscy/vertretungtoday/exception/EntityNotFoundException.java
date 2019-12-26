@@ -1,4 +1,4 @@
-package de.syscy.vertretungtoday.security.exception;
+package de.syscy.vertretungtoday.exception;
 
 public class EntityNotFoundException extends RuntimeException {
 	public EntityNotFoundException(String message) {

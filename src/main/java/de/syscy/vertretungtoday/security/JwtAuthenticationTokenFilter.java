@@ -1,5 +1,7 @@
 package de.syscy.vertretungtoday.security;
 
+import de.syscy.vertretungtoday.security.service.JwtTokenService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -13,8 +15,8 @@ import java.io.IOException;
 
 @Component
 public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
-	@Value("${jwt.header}")
-	private String tokenHeader;
+	@Value("${jwt.header}") private String tokenHeader;
+	@Autowired private JwtTokenService jwtTokenService;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -22,7 +24,7 @@ public class JwtAuthenticationTokenFilter extends OncePerRequestFilter {
 
 		if(requestHeader != null && requestHeader.startsWith("Bearer ")) {
 			String authToken = requestHeader.substring(7);
-			JwtAuthentication authentication = new JwtAuthentication(authToken);
+			JwtAuthentication authentication = new JwtAuthentication(authToken, jwtTokenService.getUsernameFromToken(authToken));
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 		}
 

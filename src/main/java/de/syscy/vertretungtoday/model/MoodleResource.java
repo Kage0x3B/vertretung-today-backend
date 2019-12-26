@@ -7,31 +7,32 @@ import javax.persistence.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Paths;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
 public class MoodleResource {
-	@Id @GeneratedValue(strategy = GenerationType.AUTO) private Integer id;
+	@Id private Integer resourceId;
 
-	private Integer resourceId;
 	private MoodleResourceInfo.ResourceType type;
 	private String url;
 	private String fileName;
+	private String mimeType;
 	@Lob @Basic(fetch = FetchType.LAZY) private byte[] data;
 
-	private Date modifiedDate;
-	private Date entryCreated;
+	private LocalDateTime modifiedDate;
+	private LocalDateTime entryCreated;
 
 	public MoodleResource() {
 
 	}
 
-	public MoodleResource(MoodleResourceInfo resourceInfo, byte[] data, Date modifiedDate) {
+	public MoodleResource(MoodleResourceInfo resourceInfo, String mimeType, byte[] data, LocalDateTime modifiedDate) {
 		this.resourceId = resourceInfo.getId();
 		this.type = resourceInfo.getType();
 		this.url = resourceInfo.getUrl();
 		this.fileName = extractFilename(resourceInfo.getUrl());
+		this.mimeType = mimeType;
 		this.data = data;
 		this.modifiedDate = modifiedDate;
 	}
@@ -50,6 +51,10 @@ public class MoodleResource {
 
 	@PrePersist
 	public void prePersist() {
-		entryCreated = new Date();
+		entryCreated = LocalDateTime.now();
+	}
+
+	public MoodleResourceInfo toResourceInfo() {
+		return new MoodleResourceInfo(resourceId, type, url);
 	}
 }

@@ -1,6 +1,6 @@
 package de.syscy.vertretungtoday.security.controller;
 
-import de.syscy.vertretungtoday.security.exception.EntityNotFoundException;
+import de.syscy.vertretungtoday.exception.EntityNotFoundException;
 import de.syscy.vertretungtoday.security.model.Account;
 import de.syscy.vertretungtoday.security.repository.AccountRepository;
 import de.syscy.vertretungtoday.security.request.LoginRequest;
@@ -45,11 +45,6 @@ public class AuthenticationController {
 		accountRepository.saveAndFlush(account);
 
 		return ResponseEntity.ok("Success, validation required");
-	}
-
-	@PostMapping("/validate")
-	public ResponseEntity<JwtTokenResponse> validate(@RequestBody RegisterRequest request) {
-		return new ResponseEntity<>(authenticationService.generateJwtToken(request.getUsername(), request.getPassword()), HttpStatus.OK);
 	}
 
 	@GetMapping("/debug-list")

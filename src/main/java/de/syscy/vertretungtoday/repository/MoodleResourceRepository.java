@@ -1,11 +1,11 @@
 package de.syscy.vertretungtoday.repository;
 
 import de.syscy.vertretungtoday.model.MoodleResource;
-import de.syscy.vertretungtoday.model.SubstitutionEntry;
+import de.syscy.vertretungtoday.moodle.MoodleResourceInfo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,5 +15,9 @@ public interface MoodleResourceRepository extends JpaRepository<MoodleResource, 
 
 	Optional<MoodleResource> findFirstByResourceId(int resourceId);
 
-	List<MoodleResource> findAllByModifiedDateBefore(Date modifiedDate);
+	List<MoodleResource> findAllByModifiedDateBefore(LocalDateTime modifiedDate);
+
+	List<MoodleResource> findByTypeOrderByModifiedDate(MoodleResourceInfo.ResourceType resourceType);
+
+	Optional<MoodleResource> findTopByResourceIdOrderByModifiedDate(int resourceId);
 }

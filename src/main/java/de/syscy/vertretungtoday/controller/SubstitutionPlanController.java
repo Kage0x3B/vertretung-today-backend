@@ -1,17 +1,16 @@
 package de.syscy.vertretungtoday.controller;
 
-import de.syscy.vertretungtoday.moodle.MoodleApi;
-import de.syscy.vertretungtoday.moodle.MoodleApiException;
-import de.syscy.vertretungtoday.security.request.LoginRequest;
+import de.syscy.vertretungtoday.model.MoodleSubstitutionPlan;
+import de.syscy.vertretungtoday.model.SubstitutionDate;
 import de.syscy.vertretungtoday.service.MoodleSubstitutionPlanService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/substitutionPlan")
@@ -23,23 +22,13 @@ public class SubstitutionPlanController {
 	}
 
 	@PostMapping("/get/{day}")
-	public ResponseEntity<String> getSubstitutions(@PathVariable("day") String day) throws IOException {
-		boolean valid = moodleApi.isAccountValid(loginRequest.getUsername(), loginRequest.getPassword());
-		return new ResponseEntity<>("Valid: " + valid, HttpStatus.OK);
-	}
+	public ResponseEntity<MoodleSubstitutionPlan> getSubstitutions(@PathVariable("day") String day) {
+		SubstitutionDate date = SubstitutionDate.fromString(day);
 
-	@GetMapping("/getresources")
-	public ResponseEntity<Map<String, String>> getResources() throws IOException, MoodleApiException {
-		Map<String, String> map = new HashMap<>();
-		List<Integer> sectionIds = moodleApi.getSectionIds(MoodleApi.INFORMATION_COURSE_ID);
-
-		for(int sectionId : sectionIds) {
-			List<Integer> resourceIds = moodleApi.getResourceIds(MoodleApi.INFORMATION_COURSE_ID, sectionId);
-
-			for(int resourceId : resourceIds) {
-				map.put(MoodleApi.INFORMATION_COURSE_ID + "-" + sectionId + "-" + resourceId, moodleApi.getResourceInfo(resourceId).toString());
-			}
+		if(date == null) {
+			throw new IllegalArgumentException("Invalid parameter \"day\"");
 		}
-		return new ResponseEntity<>(map, HttpStatus.OK);
+
+		return new ResponseEntity<>(substitutionPlanService.getSubstitutionPlan(date), HttpStatus.OK);
 	}
 }
