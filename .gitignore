@@ -7,7 +7,9 @@ build/
 !**/src/main/**
 !**/src/test/**
 
-src/main/resources/application.yml
+!src/main/resources/application.yml
+src/main/resources/application-dev.yml
+src/main/resources/application-prod.yml
 
 
 # Created by https://www.gitignore.io/api/node,java,gradle,intellij+all
