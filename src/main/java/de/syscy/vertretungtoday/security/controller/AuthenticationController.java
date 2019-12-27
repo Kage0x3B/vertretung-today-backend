@@ -1,6 +1,7 @@
 package de.syscy.vertretungtoday.security.controller;
 
 import de.syscy.vertretungtoday.exception.EntityNotFoundException;
+import de.syscy.vertretungtoday.response.ApiResponse;
 import de.syscy.vertretungtoday.security.model.Account;
 import de.syscy.vertretungtoday.security.repository.AccountRepository;
 import de.syscy.vertretungtoday.security.request.LoginRequest;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 public class AuthenticationController {
 	private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationController.class);
 
@@ -37,9 +38,15 @@ public class AuthenticationController {
 	}
 
 	@PostMapping("/register")
-	public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
+	public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
+		if(request.getUsername().length() < 3) {
+			return ApiResponse.build(HttpStatus.BAD_REQUEST, "username;invalid_length").create();
+		}
+
+		if(request.getPassword().length() < 6) {
+			return ApiResponse.build(HttpStatus.BAD_REQUEST, "password;invalid_length").create();
+		}
 		Account account = new Account();
-		account.setEmail(request.getEmail());
 		account.setUsername(request.getUsername());
 		account.setPassword(passwordEncoder.encode(request.getPassword()));
 		accountRepository.saveAndFlush(account);

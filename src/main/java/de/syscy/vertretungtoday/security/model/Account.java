@@ -11,7 +11,6 @@ import java.time.LocalDateTime;
 public class Account {
 	@Id @GeneratedValue(strategy = GenerationType.AUTO) private Integer id;
 
-	private String email;
 	private String username;
 	private String password;
 
