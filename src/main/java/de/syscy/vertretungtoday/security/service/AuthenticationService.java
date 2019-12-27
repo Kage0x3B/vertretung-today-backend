@@ -1,6 +1,10 @@
 package de.syscy.vertretungtoday.security.service;
 
 import de.syscy.vertretungtoday.exception.EntityNotFoundException;
+import de.syscy.vertretungtoday.exception.NotValidatedException;
+import de.syscy.vertretungtoday.exception.UnauthorizedException;
+import de.syscy.vertretungtoday.response.ApiResponse;
+import de.syscy.vertretungtoday.security.model.Account;
 import de.syscy.vertretungtoday.security.repository.AccountRepository;
 import de.syscy.vertretungtoday.security.response.JwtTokenResponse;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -12,16 +16,24 @@ public class AuthenticationService {
 	private JwtTokenGeneratorService jwtTokenGeneratorService;
 	private PasswordEncoder passwordEncoder;
 
-	public AuthenticationService(AccountRepository accountRepository, JwtTokenGeneratorService jwtTokenGeneratorService, PasswordEncoder passwordEncoder) {
+	public AuthenticationService(AccountRepository accountRepository, JwtTokenGeneratorService jwtTokenGeneratorService,
+								 PasswordEncoder passwordEncoder) {
 		this.accountRepository = accountRepository;
 		this.jwtTokenGeneratorService = jwtTokenGeneratorService;
 		this.passwordEncoder = passwordEncoder;
 	}
 
 	public JwtTokenResponse generateJwtToken(String username, String password) {
-		return accountRepository.findByUsername(username).stream().findAny()
-								.filter(account -> passwordEncoder.matches(password, account.getPassword())/* TODO && account.isValidated()*/)
-								.map(account -> new JwtTokenResponse(jwtTokenGeneratorService.generateToken(username)))
-								.orElseThrow(() -> new EntityNotFoundException("Account not found"));
+		Account account = accountRepository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException("Account not found"));
+
+		if(!passwordEncoder.matches(password, account.getPassword())) {
+			throw new UnauthorizedException("Invalid password");
+		}
+
+		if(!account.isValidated()) {
+			throw new NotValidatedException("Not validated");
+		}
+
+		return new JwtTokenResponse(jwtTokenGeneratorService.generateToken(account.getUsername()));
 	}
 }

@@ -1,38 +1,39 @@
 package de.syscy.vertretungtoday;
 
+import de.syscy.vertretungtoday.response.ApiResponse;
 import de.syscy.vertretungtoday.security.model.Account;
 import de.syscy.vertretungtoday.security.repository.AccountRepository;
-import okhttp3.OkHttpClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 @Component
 public class ApplicationStartup implements ApplicationListener<ApplicationReadyEvent> {
-    private AccountRepository accountRepository;
-    private PasswordEncoder passwordEncoder;
+	private AccountRepository accountRepository;
+	private PasswordEncoder passwordEncoder;
 
-    public ApplicationStartup(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
-        this.accountRepository = accountRepository;
-        this.passwordEncoder = passwordEncoder;
-    }
+	@Value("${vtdebug.originalExceptionInPayload}") private boolean originalExceptionInPayload;
+	@Value("${vtdebug.resetAccountTable}") private boolean resetAccountTable;
 
-    @Override
-    public void onApplicationEvent(ApplicationReadyEvent event) {
-        Logger.getLogger(OkHttpClient.class.getName()).setLevel(Level.FINE);
+	public ApplicationStartup(AccountRepository accountRepository, PasswordEncoder passwordEncoder) {
+		this.accountRepository = accountRepository;
+		this.passwordEncoder = passwordEncoder;
+	}
 
-        accountRepository.deleteAll();
+	@Override
+	public void onApplicationEvent(ApplicationReadyEvent event) {
+		ApiResponse.originalExceptionInPayload(originalExceptionInPayload);
 
-        Account account = new Account();
-        account.setEmail("admin@vertretungtoday.de");
-        account.setUsername("admin");
-        account.setPassword(passwordEncoder.encode("test123"));
-        account.setValidated(true);
+		if(resetAccountTable) {
+			accountRepository.deleteAll();
 
-        accountRepository.save(account);
-    }
+			Account account = new Account();
+			account.setUsername("admin");
+			account.setPassword(passwordEncoder.encode("test123"));
+			account.setValidated(true);
+			accountRepository.save(account);
+		}
+	}
 }

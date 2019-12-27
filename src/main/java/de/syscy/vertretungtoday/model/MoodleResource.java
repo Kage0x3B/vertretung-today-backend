@@ -20,7 +20,7 @@ public class MoodleResource {
 	@Lob @Basic(fetch = FetchType.LAZY) private byte[] data;
 
 	private LocalDateTime modifiedDate;
-	private LocalDateTime entryCreated;
+	private LocalDateTime entryUpdated;
 
 	public MoodleResource() {
 
@@ -50,12 +50,12 @@ public class MoodleResource {
 
 	@PrePersist
 	public void prePersist() {
-		entryCreated = LocalDateTime.now();
+		entryUpdated = LocalDateTime.now();
 	}
 
 	@PreUpdate
 	public void preUpdate() {
-		entryCreated = LocalDateTime.now();
+		entryUpdated = LocalDateTime.now();
 	}
 
 	public MoodleResourceInfo toResourceInfo() {

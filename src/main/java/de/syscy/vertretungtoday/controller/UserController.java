@@ -1,7 +1,7 @@
 package de.syscy.vertretungtoday.controller;
 
 import de.syscy.vertretungtoday.moodle.MoodleApi;
-import de.syscy.vertretungtoday.request.MoodleValidationRequest;
+import de.syscy.vertretungtoday.security.request.MoodleValidationRequest;
 import de.syscy.vertretungtoday.security.JwtAuthentication;
 import de.syscy.vertretungtoday.exception.EntityNotFoundException;
 import de.syscy.vertretungtoday.security.model.Account;
@@ -29,27 +29,5 @@ public class UserController {
 	public UserController(AccountRepository accountRepository, MoodleApi moodleApi) {
 		this.accountRepository = accountRepository;
 		this.moodleApi = moodleApi;
-	}
-
-	@PostMapping("/validate/moodle")
-	public ResponseEntity<String> validateMoodle(@RequestBody MoodleValidationRequest request) throws IOException {
-		String username = ((JwtAuthentication) SecurityContextHolder.getContext().getAuthentication()).getUsername();
-		Account account = accountRepository.findByUsername(username).stream().findAny()
-											  .orElseThrow(() -> new EntityNotFoundException("No account found for current authentication"));
-
-		if(account.isValidated()) {
-			return new ResponseEntity<>("Account already validated", HttpStatus.OK);
-		}
-
-		boolean valid = moodleApi.isAccountValid(request.getMoodleUsername(), request.getMoodlePassword());
-
-		if(valid) {
-			account.setValidated(true);
-			accountRepository.saveAndFlush(account);
-
-			return new ResponseEntity<>("Validated account", HttpStatus.OK);
-		} else {
-			throw new IllegalArgumentException("Invalid Moodle account");
-		}
 	}
 }

@@ -11,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
@@ -26,7 +25,7 @@ public class FileController {
 	}
 
 	@GetMapping("/list")
-	public ResponseEntity<ApiResponse<List<MoodleResourceInfo>>> listFiles() {
+	public ResponseEntity<ApiResponse> listFiles() {
 		return ApiResponse.ok(resourceRepository.findByTypeOrderByModifiedDate(MoodleResourceInfo.ResourceType.FILE).stream()
 												.map(MoodleResource::toResourceInfo).collect(Collectors.toList())).create();
 	}
