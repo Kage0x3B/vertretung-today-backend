@@ -1,0 +1,27 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: VertretungToday
+  jpa:
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: 'jdbc:mysql://${MYSQL_HOST:localhost}:3306/vertretungtoday?createDatabaseIfNotExist=true'
+    username: 'vertretungtoday'
+    password: ''
+jwt:
+  header: Authorization
+  secret: MyExtremelySecretiveSecret
+  expiration: 2592000 # 30 days in seconds
+moodle: # Requires a valid moodle account, currently only really working with the FWG Moodle platform
+  apiUser: ''
+  apiPassword: ''
+resourceStorage:
+  resourceExpiration: 2592000
+logging:
+  level:
+    root: info
+vtdebug:
+  originalExceptionInPayload: false
+  resetAccountTable: false

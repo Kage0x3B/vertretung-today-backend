@@ -29,6 +29,16 @@
       "name": "resourceStorage.resourceExpiration",
       "type": "java.lang.Long",
       "description": "Expiration time for resources stored in the database (in seconds)."
+    },
+    {
+      "name": "vtdebug.originalExceptionInPayload",
+      "type": "java.lang.Boolean",
+      "description": "If the error api responses should contain the original exception (for debugging purposes)."
+    },
+    {
+      "name": "vtdebug.resetAccountTable",
+      "type": "java.lang.Boolean",
+      "description": "Clear the account table and add a single admin account on every start."
     }
   ]
 }
