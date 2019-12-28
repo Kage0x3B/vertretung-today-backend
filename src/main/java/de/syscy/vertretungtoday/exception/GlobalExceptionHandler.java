@@ -13,15 +13,7 @@ import org.springframework.web.util.WebUtils;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(value = Exception.class)
-	public ResponseEntity<Object> handleGlobalException(Exception ex, WebRequest request) {
-		return handleExceptionInternal(ex, null, new HttpHeaders(), null, request);
-	}
-
-	@Override
-	protected ResponseEntity<Object> handleExceptionInternal(Exception ex, Object body, HttpHeaders headers, HttpStatus status,
-															 WebRequest request) {
-		request.setAttribute(WebUtils.ERROR_EXCEPTION_ATTRIBUTE, ex, WebRequest.SCOPE_REQUEST);
-
-		return ApiResponse.exception(ex, status).createObjectType();
+	public ResponseEntity<ApiResponse> handleGlobalException(Exception ex, WebRequest request) {
+		return ApiResponse.exception(ex).create();
 	}
 }

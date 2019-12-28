@@ -12,7 +12,7 @@ import java.io.Serializable;
 
 @Data
 @NoArgsConstructor
-@Accessors(fluent = true, chain = true)
+@Accessors(chain = true)
 public class ApiResponse implements Serializable {
 	private static @Setter boolean originalExceptionInPayload = false;
 

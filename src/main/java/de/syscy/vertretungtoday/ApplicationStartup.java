@@ -24,7 +24,7 @@ public class ApplicationStartup implements ApplicationListener<ApplicationReadyE
 
 	@Override
 	public void onApplicationEvent(ApplicationReadyEvent event) {
-		ApiResponse.originalExceptionInPayload(originalExceptionInPayload);
+		ApiResponse.setOriginalExceptionInPayload(originalExceptionInPayload);
 
 		if(resetAccountTable) {
 			accountRepository.deleteAll();

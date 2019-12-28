@@ -1,8 +1,6 @@
 package de.syscy.vertretungtoday.security.controller;
 
-import de.syscy.vertretungtoday.exception.AlreadyValidatedException;
-import de.syscy.vertretungtoday.exception.EntityNotFoundException;
-import de.syscy.vertretungtoday.exception.InvalidMoodleAccountException;
+import de.syscy.vertretungtoday.exception.*;
 import de.syscy.vertretungtoday.moodle.MoodleApi;
 import de.syscy.vertretungtoday.response.ApiResponse;
 import de.syscy.vertretungtoday.response.UserMessageResponse;
@@ -24,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -35,9 +34,6 @@ public class AuthenticationController {
 	private PasswordEncoder passwordEncoder;
 	private MoodleApi moodleApi;
 
-	{
-	}
-
 	public AuthenticationController(AuthenticationService authenticationService, AccountRepository accountRepository,
 									PasswordEncoder passwordEncoder, MoodleApi moodleApi) {
 		this.authenticationService = authenticationService;
@@ -48,28 +44,40 @@ public class AuthenticationController {
 
 	@PostMapping("/login")
 	public ResponseEntity<ApiResponse> login(@RequestBody LoginRequest request) {
-		JwtTokenResponse jwtTokenResponse = authenticationService.generateJwtToken(request.getUsername(), request.getPassword());
+		try {
+			JwtTokenResponse jwtTokenResponse = authenticationService.generateJwtToken(request.getUsername(), request.getPassword());
 
-		return ApiResponse.ok("Valid authentication", jwtTokenResponse).create();
+			return ApiResponse.ok("Valid authentication", jwtTokenResponse).create();
+		} catch(EntityNotFoundException ex) {
+			return ApiResponse
+					.build(HttpStatus.BAD_REQUEST, "Account not found", new UserMessageResponse("usernameField", "accountNotFound"))
+					.create();
+		} catch(UnauthorizedException ex) {
+			return ApiResponse
+					.build(HttpStatus.BAD_REQUEST, "Invalid password", new UserMessageResponse("passwordField", "invalidPassword"))
+					.create();
+		} catch(NotValidatedException ex) {
+			return ApiResponse.exception(ex).create();
+		}
 	}
 
 	@PostMapping("/register")
 	public ResponseEntity<ApiResponse> register(@RequestBody RegisterRequest request) {
 		if(request.getUsername().length() < 3) {
 			return ApiResponse
-					.build(HttpStatus.BAD_REQUEST, "Invalid username length", new UserMessageResponse("username_field", "invalid_length"))
+					.build(HttpStatus.BAD_REQUEST, "Invalid username length", new UserMessageResponse("usernameField", "invalidUsernameLength"))
 					.create();
 		}
 
 		if(request.getPassword().length() < 6) {
 			return ApiResponse
-					.build(HttpStatus.BAD_REQUEST, "Invalid password length", new UserMessageResponse("password_field", "invalid_length"))
+					.build(HttpStatus.BAD_REQUEST, "Invalid password length", new UserMessageResponse("passwordField", "invalidPasswordLength"))
 					.create();
 		}
 
 		if(accountRepository.findByUsername(request.getUsername()).isPresent()) {
 			return ApiResponse
-					.build(HttpStatus.BAD_REQUEST, "Username not available", new UserMessageResponse("username_field", "username_taken"))
+					.build(HttpStatus.BAD_REQUEST, "Username not available", new UserMessageResponse("usernameField", "usernameTaken"))
 					.create();
 		}
 
@@ -83,17 +91,28 @@ public class AuthenticationController {
 
 	@PostMapping("/validate/moodle")
 	public ResponseEntity<ApiResponse> validateMoodle(@RequestBody MoodleValidationRequest request) throws IOException {
-		Account account = accountRepository.findByUsername(request.getAccountUsername())
-										   .orElseThrow(() -> new EntityNotFoundException("No account found for validation"));
+		Optional<Account> accountOpt = accountRepository.findByUsername(request.getAccountUsername());
+
+		if(!accountOpt.isPresent()) {
+			return ApiResponse
+					.build(HttpStatus.BAD_REQUEST, "Account not found", new UserMessageResponse("accountUsernameField", "accountNotFound"))
+					.create();
+		}
+
+		Account account = accountOpt.get();
 
 		if(account.isValidated()) {
-			throw new AlreadyValidatedException("Account already validated");
+			return ApiResponse
+					.build(HttpStatus.BAD_REQUEST, "Account already validated", new UserMessageResponse("accountUsernameField", "accountAlreadyValidated"))
+					.create();
 		}
 
 		boolean valid = moodleApi.isAccountValid(request.getMoodleUsername(), request.getMoodlePassword());
 
 		if(!valid) {
-			throw new InvalidMoodleAccountException();
+			return ApiResponse
+					.build(HttpStatus.BAD_REQUEST, "Invalid Moodle Authentication", new UserMessageResponse("general", "invalidMoodleAuthentication"))
+					.create();
 		}
 
 		account.setValidated(true);

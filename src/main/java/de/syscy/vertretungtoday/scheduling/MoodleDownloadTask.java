@@ -36,7 +36,7 @@ public class MoodleDownloadTask {
 		this.updateEventPublisher = updateEventPublisher;
 	}
 
-	@Scheduled(fixedDelay = 10 * 60 * 1000)
+	@Scheduled(fixedDelay = 20 * 60 * 1000)
 	public void updateMoodleResources() {
 		LOGGER.info("Updating moodle resources...");
 
