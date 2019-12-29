@@ -10,6 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/substitutionPlan")
@@ -21,26 +24,39 @@ public class SubstitutionPlanController {
 	}
 
 	@GetMapping("/summary")
-	public ResponseEntity<ApiResponse> getSummary(@RequestParam(value = "grade", defaultValue = "-1") int grade) {
-		MoodleSubstitutionPlan today = substitutionPlanService.getSubstitutionPlan(SubstitutionDate.TODAY, grade);
-		MoodleSubstitutionPlan next = substitutionPlanService.getSubstitutionPlan(SubstitutionDate.NEXT, grade);
+	public ResponseEntity<ApiResponse> getSummary(@RequestParam(value = "grade", defaultValue = "-1") int grade, @RequestParam(value = "courses", defaultValue = "") String[] courses) {
+		Set<String> coursesSet = null;
+
+		if(courses != null && courses.length > 0) {
+			coursesSet = Arrays.stream(courses).collect(Collectors.toSet());
+		}
+
+		MoodleSubstitutionPlan today = substitutionPlanService.getSubstitutionPlan(SubstitutionDate.TODAY, grade, coursesSet);
+		MoodleSubstitutionPlan next = substitutionPlanService.getSubstitutionPlan(SubstitutionDate.NEXT, grade, coursesSet);
 
 		DashboardSummaryResponse summaryResponse = new DashboardSummaryResponse();
 		summaryResponse.setAmountToday(today.getSubstitutionEntries().size());
 		summaryResponse.setAmountNext(next.getSubstitutionEntries().size());
-		summaryResponse.setMotd(new DashboardSummaryResponse.MotdSection(today.getMessageOfTheDay(), next.getMessageOfTheDay()));
+		summaryResponse.setNextDate(next.getMotd() == null ? null : next.getMotd().getDate());
+		summaryResponse.setMotd(new DashboardSummaryResponse.MotdSection(today.getMotd(), next.getMotd()));
 
 		return ApiResponse.ok(summaryResponse).create();
 	}
 
 	@GetMapping("/get/{day}")
-	public ResponseEntity<ApiResponse> getSubstitutions(@PathVariable("day") String day, @RequestParam(value = "grade", defaultValue = "-1") int grade) {
+	public ResponseEntity<ApiResponse> getSubstitutions(@PathVariable("day") String day, @RequestParam(value = "grade", defaultValue = "-1") int grade, @RequestParam(value = "courses", defaultValue = "") String[] courses) {
 		SubstitutionDate date = SubstitutionDate.fromString(day);
 
 		if(date == null) {
 			throw new IllegalArgumentException("Invalid parameter \"day\"");
 		}
 
-		return ApiResponse.ok(substitutionPlanService.getSubstitutionPlan(date, grade)).create();
+		Set<String> coursesSet = null;
+
+		if(courses != null && courses.length > 0) {
+			coursesSet = Arrays.stream(courses).collect(Collectors.toSet());
+		}
+
+		return ApiResponse.ok(substitutionPlanService.getSubstitutionPlan(date, grade, coursesSet)).create();
 	}
 }

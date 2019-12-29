@@ -32,6 +32,6 @@ public class MoodleSubstitutionPlanUpdateListener {
 			substitutionInfoRepository.save(entry);
 		}
 
-		motdRepository.saveAndFlush(event.getSubstitutionPlan().getMessageOfTheDay());
+		motdRepository.saveAndFlush(event.getSubstitutionPlan().getMotd());
 	}
 }

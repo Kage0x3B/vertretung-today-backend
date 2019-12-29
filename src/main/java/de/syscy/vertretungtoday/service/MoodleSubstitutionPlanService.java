@@ -12,6 +12,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class MoodleSubstitutionPlanService {
@@ -28,6 +30,10 @@ public class MoodleSubstitutionPlanService {
 	}
 
 	public MoodleSubstitutionPlan getSubstitutionPlan(SubstitutionDate date, int grade) {
+		return getSubstitutionPlan(date, grade, null);
+	}
+
+	public MoodleSubstitutionPlan getSubstitutionPlan(SubstitutionDate date, int grade, Set<String> courses) {
 		//TODO: Cache this result, at least for a few minutes or with invalidation by an update event?
 		MoodleSubstitutionPlan substitutionPlan = new MoodleSubstitutionPlan();
 
@@ -57,8 +63,13 @@ public class MoodleSubstitutionPlanService {
 		if(substitutionEntries == null) {
 			throw new IllegalStateException("substitutionEntries is null");
 		}
+
+		if(courses != null) {
+			Set<String> finalCourses = courses.stream().map(String::toLowerCase).collect(Collectors.toSet());
+			substitutionEntries = substitutionEntries.stream().filter(s -> finalCourses.contains(s.getCourseId().toLowerCase())).collect(Collectors.toList());
+		}
 		
-		substitutionPlan.setMessageOfTheDay(motd.orElse(null));
+		substitutionPlan.setMotd(motd.orElse(null));
 		substitutionPlan.setSubstitutionEntries(substitutionEntries);
 
 		Optional<LocalDate> optDate = substitutionEntries.stream().map(SubstitutionEntry::getDay).findAny();

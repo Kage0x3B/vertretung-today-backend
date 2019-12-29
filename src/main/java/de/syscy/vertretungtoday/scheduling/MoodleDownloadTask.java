@@ -36,7 +36,8 @@ public class MoodleDownloadTask {
 		this.updateEventPublisher = updateEventPublisher;
 	}
 
-	@Scheduled(fixedDelay = 20 * 60 * 1000)
+	//TODO: Changed for sending less requests while testing, default is every 20 min
+	@Scheduled(fixedDelay = 120 * 60 * 1000)
 	public void updateMoodleResources() {
 		LOGGER.info("Updating moodle resources...");
 

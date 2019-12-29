@@ -62,7 +62,7 @@ public class MoodleFileUpdateListener {
 		LocalDate date = parseDate(document);
 		substitutionPlan.setDate(date);
 		substitutionPlan.setModifiedTime(resource.getModifiedDate());
-		substitutionPlan.setMessageOfTheDay(parseMOTD(document, date));
+		substitutionPlan.setMotd(parseMOTD(document, date));
 
 		List<SubstitutionEntry> substitutionEntries = readSubstitutionEntries(extractSubstitutionEntries(document), date, resource
 				.getModifiedDate());

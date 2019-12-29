@@ -11,6 +11,6 @@ public class MoodleSubstitutionPlan {
 	private LocalDate date;
 	private LocalDateTime modifiedTime;
 
-	private MoodleMessageOfTheDay messageOfTheDay;
+	private MoodleMessageOfTheDay motd;
 	private List<SubstitutionEntry> substitutionEntries;
 }
