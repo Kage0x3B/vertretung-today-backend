@@ -124,6 +124,18 @@ public class MoodleFileUpdateListener {
 			entry.setDay(day);
 			entry.setModifiedDate(modifiedDate);
 
+			if(entry.getType() == SubstitutionType.INDEPENDENT_WORKING) {
+				String newRoom = entry.getRoomReplacement();
+
+				//These rooms don't exist/are student rooms. When they appear as a replacement room, it's basically cancelled
+				//Independent working is .. kind of suggested but who even does that, might as well go home and work there
+				// ----
+				//Notice that the lower classes can have supervised independent working so it's still required to have that type!
+				if(newRoom.contains("000") || newRoom.contains("001")) {
+					entry.setType(SubstitutionType.CANCELLED);
+				}
+			}
+
 			substitutionEntries.addAll(cloneEntries(entry, rawEntry.getTime()));
 		}
 

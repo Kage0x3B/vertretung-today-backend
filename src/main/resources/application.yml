@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: prod
   application:
     name: VertretungToday
   jpa:
@@ -10,6 +10,8 @@ spring:
     url: 'jdbc:mysql://${MYSQL_HOST:localhost}:3306/vertretungtoday?createDatabaseIfNotExist=true'
     username: 'vertretungtoday'
     password: ''
+server:
+  port: 4556
 jwt:
   header: Authorization
   secret: MyExtremelySecretiveSecret

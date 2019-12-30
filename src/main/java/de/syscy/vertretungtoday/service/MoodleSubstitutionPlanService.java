@@ -25,15 +25,7 @@ public class MoodleSubstitutionPlanService {
 		this.motdRepository = motdRepository;
 	}
 
-	public MoodleSubstitutionPlan getSubstitutionPlan(SubstitutionDate date) {
-		return getSubstitutionPlan(date, -1);
-	}
-
-	public MoodleSubstitutionPlan getSubstitutionPlan(SubstitutionDate date, int grade) {
-		return getSubstitutionPlan(date, grade, null);
-	}
-
-	public MoodleSubstitutionPlan getSubstitutionPlan(SubstitutionDate date, int grade, Set<String> courses) {
+	public MoodleSubstitutionPlan getSubstitutionPlan(SubstitutionDate date, int grade, String gradeAddition, Set<String> courses) {
 		//TODO: Cache this result, at least for a few minutes or with invalidation by an update event?
 		MoodleSubstitutionPlan substitutionPlan = new MoodleSubstitutionPlan();
 
@@ -66,9 +58,26 @@ public class MoodleSubstitutionPlanService {
 
 		if(courses != null) {
 			Set<String> finalCourses = courses.stream().map(String::toLowerCase).collect(Collectors.toSet());
-			substitutionEntries = substitutionEntries.stream().filter(s -> finalCourses.contains(s.getCourseId().toLowerCase())).collect(Collectors.toList());
+			substitutionEntries = substitutionEntries.stream().filter(s -> finalCourses.contains(s.getCourseId().toLowerCase()))
+													 .collect(Collectors.toList());
 		}
-		
+
+		if(gradeAddition != null && !gradeAddition.isEmpty()) {
+			/*
+			TODO: Using lowercase here would create a problem with grade additions for the mixed english classes with additions
+			 containing an uppercase "E" if there is a class like "5e" in the future.. Not currently a problem at the FWG so ignored
+			 */
+			String finalGradeAddition = gradeAddition.toLowerCase();
+			substitutionEntries = substitutionEntries.stream().filter(s -> s.getGradeAddition().toLowerCase().contains(finalGradeAddition))
+													 .collect(Collectors.toList());
+		}
+
+		if(courses != null && courses.size() > 1) {
+			Set<String> finalCourses = courses.stream().map(String::toLowerCase).collect(Collectors.toSet());
+			substitutionEntries = substitutionEntries.stream().filter(s -> finalCourses.contains(s.getCourseId().toLowerCase()))
+													 .collect(Collectors.toList());
+		}
+
 		substitutionPlan.setMotd(motd.orElse(null));
 		substitutionPlan.setSubstitutionEntries(substitutionEntries);
 

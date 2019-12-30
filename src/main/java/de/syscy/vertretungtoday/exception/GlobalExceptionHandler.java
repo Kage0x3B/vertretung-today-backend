@@ -10,7 +10,6 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import org.springframework.web.util.WebUtils;
 
-@ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	@ExceptionHandler(value = Exception.class)
 	public ResponseEntity<ApiResponse> handleGlobalException(Exception ex, WebRequest request) {

@@ -2,6 +2,9 @@ package de.syscy.vertretungtoday.util;
 
 import lombok.experimental.UtilityClass;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,5 +36,17 @@ public class Util {
 	public static LocalDateTime parseTime(LocalDate baseDate, String timeString) {
 		LocalTime time = LocalTime.parse(timeString, TIME_FORMATTER);
 		return time.atDate(baseDate);
+	}
+
+	public static String extractFilename(String url) {
+		try {
+			//This is a bit more intelligent, it also removes query parameters
+			//While it should work every time, I provided a trivial fallback which just takes the url part after the last '/'
+			return Paths.get(new URI(url).getPath()).getFileName().toString();
+		} catch(URISyntaxException ex) {
+			ex.printStackTrace();
+
+			return url.substring(url.lastIndexOf('/') + 1);
+		}
 	}
 }

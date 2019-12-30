@@ -4,7 +4,7 @@ import de.syscy.vertretungtoday.util.Util;
 
 public enum SubstitutionType {
 	SUBSTITUTION("Vertretung", "Vert", "retung"),
-	CANCELLED("fällt aus", "fällt", "aus"),
+	CANCELLED("fällt aus", "fällt"),
 	SWITCH("Tausch"),
 	MOVED("Verlegung", "Verl", "egung"),
 	ROOM_CHANGE("Raumänd", "Raum"),

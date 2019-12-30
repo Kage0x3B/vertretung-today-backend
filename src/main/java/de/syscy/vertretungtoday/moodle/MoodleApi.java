@@ -93,7 +93,7 @@ public class MoodleApi {
 
 		try(Response response = client.newCall(request).execute()) {
 			if(response.code() == 303) {
-				return new MoodleResourceInfo(resourceId, MoodleResourceInfo.ResourceType.FILE, response.header("Location"));
+				return new MoodleResourceInfo(resourceId, MoodleResourceInfo.ResourceType.FILE, response.header("Location"), "", "");
 			} else {
 				Document doc = Jsoup.parse(response.body().string(), url);
 
@@ -110,7 +110,7 @@ public class MoodleApi {
 					iframeSrc = iframeSrc.substring(0, iframeSrc.length() - 8);
 				}
 
-				return new MoodleResourceInfo(resourceId, MoodleResourceInfo.ResourceType.EMBEDDED_PAGE, iframeSrc);
+				return new MoodleResourceInfo(resourceId, MoodleResourceInfo.ResourceType.EMBEDDED_PAGE, iframeSrc, "", "");
 			}
 		}
 	}

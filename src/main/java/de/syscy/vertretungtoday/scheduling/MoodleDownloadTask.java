@@ -37,7 +37,7 @@ public class MoodleDownloadTask {
 	}
 
 	//TODO: Changed for sending less requests while testing, default is every 20 min
-	@Scheduled(fixedDelay = 120 * 60 * 1000)
+	@Scheduled(fixedDelay = 60 * 60 * 1000)
 	public void updateMoodleResources() {
 		LOGGER.info("Updating moodle resources...");
 
