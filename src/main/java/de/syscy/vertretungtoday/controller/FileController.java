@@ -13,6 +13,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.stream.Collectors;
 
+// REST Controller für zwei Routen die sich um die Dateien (also hauptsächlich sowas wie die Stundenplan PDF Dateien auf Moodle)
+// kümmern
 @RestController
 @RequestMapping("/file")
 public class FileController {
@@ -24,12 +26,18 @@ public class FileController {
 		this.resourceRepository = resourceRepository;
 	}
 
+	// Gibt eine Liste mit allen Dateien die zum Download bereit stehen zurück
+	// (Und sortiert nach Typ, dass die Vertretungsplan HTML Seiten nicht dabei sind)
 	@GetMapping("/list")
 	public ResponseEntity<ApiResponse> listFiles() {
 		return ApiResponse.ok(resourceRepository.findByTypeOrderByModifiedDate(MoodleResourceInfo.ResourceType.FILE).stream()
 												.map(MoodleResource::toResourceInfo).collect(Collectors.toList())).create();
 	}
 
+	// Zum herunterladen einer Resource. Schickt keine REST Antwort sondern nur die Bytes der Datei
+	// mit dem HTTP Header "Content-Disposition: attachment; .." der dem Browser sagt, dass diese Bytes
+	// eine Datei zum herunterladen sind.
+	// (Wird in der App nicht benutzt, herunterladen funktioniert mit einem Javascript Trick aber hab ich mal so gelassen)
 	@GetMapping("/get/{resourceId}")
 	public ResponseEntity<byte[]> getFile(@PathVariable("resourceId") int resourceId,
 										  @RequestParam(value = "download", required = false, defaultValue = "false") boolean download) {

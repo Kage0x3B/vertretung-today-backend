@@ -15,6 +15,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+// Kümmert sich um alle möglichen Funktionen mit den Einträgen des Vertretungsplan,
+// filtert die Einträge damit ein Benutzer nur das für sich Wichtige zu sehen bekommt.
 @Service
 public class MoodleSubstitutionPlanService {
 	private SubstitutionInfoRepository infoRepository;
@@ -25,6 +27,8 @@ public class MoodleSubstitutionPlanService {
 		this.motdRepository = motdRepository;
 	}
 
+	// Stellt die Daten für den Vertretungsplan eines bestimmten Tages aus den Datenbank Tabellen zusammen
+	// und filtert alles unwichtige heraus
 	public MoodleSubstitutionPlan getSubstitutionPlan(SubstitutionDate date, int grade, String gradeAddition, Set<String> courses) {
 		//TODO: Cache this result, at least for a few minutes or with invalidation by an update event?
 		MoodleSubstitutionPlan substitutionPlan = new MoodleSubstitutionPlan();
@@ -34,6 +38,8 @@ public class MoodleSubstitutionPlanService {
 
 		LocalDate today = LocalDate.now();
 
+		// Je nachdem ob der Vertretungsplan für heute oder den Tag danach gebraucht wird eine andere Anfrage ausführen
+		// Und hier bereits das Filtern nach Stufe der Datenbank überlassen
 		if(date == SubstitutionDate.TODAY) {
 			motd = motdRepository.findById(today);
 
@@ -56,6 +62,12 @@ public class MoodleSubstitutionPlanService {
 			throw new IllegalStateException("substitutionEntries is null");
 		}
 
+		// Das Filtern mit bestimmten Kursen die der Schüler belegt oder der Klasse (also ob 5a, 5b usw.)
+		// findet nicht in der Datenbank statt sondern hier im Code, da es nicht ineffizient ist weil nach dem
+		// Filtern nach Tag und Stufe bereits wenige Einträge vorhanden sind und hier im Code geht es einfacher
+
+		// Gerade gemerkt dass das Filtern nach Kursen doppelt ist, aber da ich in einer extra Git Branch bin für die Kommentare
+		// kann ich das gerade nicht rausnehmen...
 		if(courses != null) {
 			Set<String> finalCourses = courses.stream().map(String::toLowerCase).collect(Collectors.toSet());
 			substitutionEntries = substitutionEntries.stream().filter(s -> finalCourses.contains(s.getCourseId().toLowerCase()))

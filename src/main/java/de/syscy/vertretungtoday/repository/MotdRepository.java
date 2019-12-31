@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.Optional;
 
+// Eine Tabelle für alle "Nachrichten des Tages", verknüpft mit dem passenden Datum
 @Repository
 public interface MotdRepository extends JpaRepository<MoodleMessageOfTheDay, LocalDate> {
 	Optional<MoodleMessageOfTheDay> findFirstByDateAfter(LocalDate date);

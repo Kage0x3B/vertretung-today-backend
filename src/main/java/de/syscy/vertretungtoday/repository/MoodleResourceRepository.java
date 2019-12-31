@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+// Tabelle für alle von Moodle heruntergeladenen Dateien, speichert Informationen und den Datei Inhalt als SQL Blob
 @Repository
 public interface MoodleResourceRepository extends JpaRepository<MoodleResource, Integer> {
 	Optional<MoodleResource> findFirstByFileNameOrderByModifiedDate(String fileName);

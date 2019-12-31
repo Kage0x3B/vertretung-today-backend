@@ -14,15 +14,17 @@ import java.time.format.SignStyle;
 
 import static java.time.temporal.ChronoField.*;
 
+// Ein paar kleine Helferfunktionen und sowas, was nirgendwo sonst einen guten Platz gefunden hat
 @UtilityClass
 public class Util {
+	// DateTimeFormatter zum einlesen von Zeit und Datum aus den Vertretungsplan HTML Dateien
 	private static final DateTimeFormatter DATE_FORMATTER = new DateTimeFormatterBuilder().appendValue(DAY_OF_MONTH, 1, 2, SignStyle.NEVER)
 																						  .appendLiteral('.')
 																						  .appendValue(MONTH_OF_YEAR, 1, 2, SignStyle.NEVER)
 																						  .appendLiteral('.')
 																						  .appendValue(YEAR, 4, 10, SignStyle.EXCEEDS_PAD)
 																						  .toFormatter();
-	;
+
 	private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ISO_LOCAL_TIME;
 
 	public static String cleanString(String s) {

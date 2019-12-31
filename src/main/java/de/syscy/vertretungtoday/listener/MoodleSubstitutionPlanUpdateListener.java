@@ -22,6 +22,8 @@ public class MoodleSubstitutionPlanUpdateListener {
 		this.motdRepository = motdRepository;
 	}
 
+	// Lädt einfach alle verarbeiteten Daten aus dem MoodleFileUpdateListener
+	// in die Datenbank hoch
 	@Async
 	@EventListener
 	public void onSubstitutionPlanUpdate(SubstitutionPlanUpdateEvent event) {

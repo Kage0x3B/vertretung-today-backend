@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+//Noch ein paar überbleibsel vom Testen einiger Funktionen wie der Moodle Account Verifizierung..
+//Eigentlich ein Sicherheitsrisiko deswegen wirds auch bald rausgenommen
 @RestController
 @RequestMapping("/hello")
 public class HelloWorldController {

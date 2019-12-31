@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+// Wird automatisch durch ein Event benachrichtigt, wenn der "MoodleDownloadTask" neue Dateien gefunden hat
+// Diese Klasse kümmert sich darum, die Dateien die heruntergeladen wurden weiter zu bearbeiten und z.B.
+// die Daten aus den Vertretungsplan HTML Dateien zu extrahieren
 @Component
 public class MoodleFileUpdateListener {
 	private static final Logger LOGGER = LoggerFactory.getLogger(MoodleFileUpdateListener.class);
@@ -38,15 +41,24 @@ public class MoodleFileUpdateListener {
 		this.updateEventPublisher = updateEventPublisher;
 	}
 
+	// Etwas Java Event Listener Magie, das hier wird immer aufgerufen, wenn irgendwo anders ein MoodleFileUpdateEvent
+	// "gepublished" (-> veröffentlicht/verbreitet) wurde mit der MoodleFileUpdateEventPublisher#publishEvent Methode
 	@Async
 	@EventListener
 	public void onMoodleFileUpdate(MoodleFileUpdateEvent event) {
+		// Wenn es eine HTML Seite ist, also ein Vertretungsplan, bearbeite es weiter.
+		// Der Rest, also PDF Dateien, wird einfach in der Datenbank gespeichert und zum direkten Download bereitgestellt.
 		if(event.getResource().getType() == MoodleResourceInfo.ResourceType.EMBEDDED_PAGE && event.getResource().getUrl()
 																								  .contains("subst")) {
 			LOGGER.info("Parsing substitution info from " + event.getResource().getFileName());
+			// Jsoup ist eine Bibliothek um HTML Dokumente einzulesen zu Java Objekten. Ist einfacher damit weiter zu arbeiten
+			// anstatt z.B. mit String Manipulation irgendwie die Werte zu finden..
 			Document document = Jsoup.parse(new String(event.getResource().getData(), StandardCharsets.UTF_8));
 
 			try {
+				// Diese Zeile extrahiert die Informationen aus der HTML Datei, packt alles in ein Objekt und
+				// verbreitet dieses über Events weiter
+				// (an den MoodleSubstitutionPlanUpdateListener, der das Objekt noch in die Datenbank speichert)
 				MoodleSubstitutionPlan substitutionPlan = parseSubstitutionPlan(event.getResource(), document);
 				LOGGER.info("Found " + substitutionPlan.getSubstitutionEntries().size() + " substitution entries");
 				updateEventPublisher.publishEvent(this, substitutionPlan);
@@ -59,11 +71,16 @@ public class MoodleFileUpdateListener {
 	private MoodleSubstitutionPlan parseSubstitutionPlan(MoodleResource resource, Document document) {
 		MoodleSubstitutionPlan substitutionPlan = new MoodleSubstitutionPlan();
 
+		// "Meta Informationen die drinnen stehen wie das zuletzt aktualisiert Datum und die Nachricht des Tages,
+		// im Programm immer "Motd" oder "Message of the Day" genannt.
 		LocalDate date = parseDate(document);
 		substitutionPlan.setDate(date);
 		substitutionPlan.setModifiedTime(resource.getModifiedDate());
 		substitutionPlan.setMotd(parseMOTD(document, date));
 
+		// Die eigentlichen Einträge im Vertretungsplan, erst aus dem HTML Format extrahiert und dann
+		// noch in "readSubstitutionEntries" teilweise in andere Formate umgewandelt womit später besser
+		// gearbeitet werden kann
 		List<SubstitutionEntry> substitutionEntries = readSubstitutionEntries(extractSubstitutionEntries(document), date, resource
 				.getModifiedDate());
 		substitutionPlan.setSubstitutionEntries(substitutionEntries);

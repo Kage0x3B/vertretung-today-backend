@@ -36,6 +36,10 @@ public class MoodleDownloadTask {
 		this.updateEventPublisher = updateEventPublisher;
 	}
 
+	// Wird alle 60 Minuten mit Hilfe der MoodleAPI Klasse alle Dateien herunterladen und mit Events weitergeben an Listener
+	// um diese weiterzuverarbeiten (und so z.B. den Vertretungsplan zu aktualisieren)
+	// (nur alle 60 Minuten fürs testen, später vllt. öfters, will aber auch aufpassen dass mein Verhalten, alle 60 Minuten alle Dateien
+	// herunterzuladen, nicht allzu sehr auffällt, besonders bevor alles genau mit der Schulleitung abgeklärt ist. Werde ich wohl noch machen)
 	//TODO: Changed for sending less requests while testing, default is every 20 min
 	@Scheduled(fixedDelay = 60 * 60 * 1000)
 	public void updateMoodleResources() {

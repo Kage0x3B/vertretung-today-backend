@@ -16,6 +16,8 @@ public class ResourceStorageCleanupTask {
 		this.resourceStorageService = resourceStorageService;
 	}
 
+	// Führt alle 60 Minuten eine Säuberung der "MoodleResource" Tabelle durch um sehr alte Dateien zu löschen.
+	// Mehr dazu in der MoodleResourceStorageService Klasse
 	@Scheduled(fixedDelay = 60 * 60 * 1000)
 	public void updateMoodleResources() {
 		LOGGER.info("Cleaning up resource storage database...");

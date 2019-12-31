@@ -15,6 +15,12 @@ import java.net.CookiePolicy;
 import java.util.ArrayList;
 import java.util.List;
 
+// Ich konnte keine gute Dokumentation für eine Moodle API finden
+// (Und es könnte sein dass diese bei der Moodle Instanz des FWG sogar nicht aktiviert ist)
+// deswegen habe ich mit dem Browser alle Anfragen die beim Login passieren genauer angeschaut
+// und das Dateien herunterladen dann einfach, indem ich die Website scrape, gebaut.
+// ---
+// In dieser Klasse sind also alle Hilfsmittel um mit dem FWG Moodle zu interagieren
 @Component
 public class MoodleApi {
 	public static final int INFORMATION_COURSE_ID = 24;
@@ -35,6 +41,13 @@ public class MoodleApi {
 		this.apiPassword = apiPassword;
 	}
 
+	// Die nächsten paar Methoden sind zum scrapen der Website um die Dateien (Vertretungsplan HTML Dateien und sonstiges)
+	// aus dem "Informationen für Schüler Kurs" zu finden, aufzulisten und herunterzuladen.
+	// Die Vorgehensweise ist ein triviales
+	// * Seite laden
+	// * Die richtigen Links die mich weiterführen finden
+	// * Links aufrufen und von vorne anfangen im Unterordner
+	// bis ich alle Resourcen habe..
 	public List<Integer> getSectionIds(int courseId) throws IOException, MoodleApiException {
 		OkHttpClient client = createClient();
 
@@ -145,6 +158,19 @@ public class MoodleApi {
 		return response;
 	}
 
+	// Diese Methoden sind um die "Moodle Account Bestätigung" bereitzustellen.
+	// Einfach nur die Variante mit Mail schicken wäre zu langsam, deswegen dass hier.
+	// Meine Logik war dass jeder eh schon einen Moodle Account hat und ich musste eh etwas machen, damit nur Leute,
+	// die auch wirklich Schüler des FWGs sind, Zugriff auf die Seite haben, damit ich keinen Ärger bekomme ':D
+	// -----
+	// Das hier funktioniert einfach, indem ich die HTTP Anfrage, die geschickt wird, wenn man die Login Form auf der Startseite abgeschickt, imitiere.
+	// Ich habe mit den Entwicklertools im Browser herausgefunden dass, je nachdem ob das Einloggen erfolgreich war,
+	// ich eine andere Antwort bekomme:
+	// * Bei einem erfolgreichen Login ist es ein HTTP Redirect Status Code mit einem Location Header der eine URL auf
+	//   eine Seite mit einem testsession Parameter enthält
+	// * Wenn der Login fehlgeschlagen ist, ist es iwie nur die normale Loginseite.
+	// Mir ziemlich egal was testsession ist usw., ich brauche nur den Unterschied bei der Antwort vom Server
+	// wenn der Benutzername und Passwort stimmten oder halt nicht.
 	public boolean isAccountValid(String username, String password) throws IOException {
 		OkHttpClient client = new OkHttpClient().newBuilder().followRedirects(false).build();
 
@@ -173,6 +199,9 @@ public class MoodleApi {
 		return request;
 	}
 
+	// OkHttp benutze ich als Bibliothek für alle HTTP Anfragen an externe Server, also Moodle.
+	// Mit dieser Methode erstelle ich eine neue Instanz und konfiguriere diese oder gebe eine existierende zurück um nicht für jede Anfrage
+	// einen neuen Client zu erstellen.. wäre schon unnötig
 	private OkHttpClient createClient() throws IOException, MoodleApiException {
 		if(cachedClient != null) {
 			return cachedClient;
@@ -181,8 +210,11 @@ public class MoodleApi {
 		CookieManager cookieManager = new CookieManager();
 		cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
 
+		// followRedirects(false) ist wichtig, damit ich den Location header beim Testen eines Accounts auslesen kann
 		cachedClient = new OkHttpClient.Builder().followRedirects(false).cookieJar(new JavaNetCookieJar(cookieManager)).build();
 
+		// Und hier logge ich mich mit einem hinterlegten Account (meinem eigenen in diesem Fall, bitte nicht sperren! :o)
+		// ein um Zugriff auf die Dateien zu haben..
 		Request loginRequest = createLoginRequest(cachedClient, apiUser, apiPassword);
 
 		try(Response response = cachedClient.newCall(loginRequest).execute()) {

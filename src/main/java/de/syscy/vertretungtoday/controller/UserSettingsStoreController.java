@@ -14,6 +14,9 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
+// REST Controller um die Einstellungen von Benutzern auf dem Server zu speichern anstatt nur im Localstorage des Browsers.
+// Erschien mir etwas sicherer da Localstorage ja schnell mal gelöscht werden kann und es hat den Vorteil,
+// dass ein Benutzer egal wo er sich einloggt immer die Daten wie z.B. in welcher Stufe er ist, hat.
 @RestController
 @RequestMapping("/userSettings")
 public class UserSettingsStoreController {
@@ -25,6 +28,8 @@ public class UserSettingsStoreController {
 		this.settingsRepository = settingsRepository;
 	}
 
+	// Gibt die gespeicherten Daten für den angemeldeten Account zurück
+	// Das Format der Daten ist ein String der JSON enthält
 	@GetMapping("/get")
 	public ResponseEntity<ApiResponse> getSettings() {
 		String username = ((JwtAuthentication) SecurityContextHolder.getContext().getAuthentication()).getUsername().toLowerCase();
@@ -38,6 +43,7 @@ public class UserSettingsStoreController {
 		}
 	}
 
+	//Speichert die Daten in der Datenbank, verknüpft mit dem angemeldeten Account
 	@PostMapping("/store")
 	public ResponseEntity<ApiResponse> storeSettings(@RequestBody StoreUserSettingsRequest storeRequest) {
 		String username = ((JwtAuthentication) SecurityContextHolder.getContext().getAuthentication()).getUsername().toLowerCase();

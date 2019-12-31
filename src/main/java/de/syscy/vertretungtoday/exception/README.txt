@@ -1,0 +1,2 @@
+Sehr viele Exception/Fehler Klassen die im Programm so benutzt werden. Viele mit ein paar Extra Informationen um bessere API Antworten zu generieren, falls während einer
+API Anfrage ein Fehler auftritt.

@@ -10,6 +10,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+// Kümmert sich um das Speichern von Dateien in der Datenbank und das Aufräumen dieser damit sehr alte Dateien auch gelöscht werden,
+// besonders weil in der Datenbank auch der Datei Inhalt gespeichert wird
 @Service
 public class MoodleResourceStorageService {
 	private MoodleResourceRepository resourceRepository;

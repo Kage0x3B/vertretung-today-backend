@@ -9,6 +9,9 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+// Ein weiterer Event Listener, der beim Start ausgeführt wird.
+// Hat nur eine praktische Funktion zum testen des Servers, dass automatisch ein Account für den admin erstellt wird
+// und der Rest beim Neustart gelöscht
 @Component
 public class ApplicationStartup implements ApplicationListener<ApplicationReadyEvent> {
 	private AccountRepository accountRepository;

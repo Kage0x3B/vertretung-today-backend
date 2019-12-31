@@ -12,6 +12,11 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+// REST Controller für alles mit Vertretungsplänen
+// Alle Anfragen unterstützen extra Sortieren der Ergebnisse nach Stufe/Klasse ("gradeAddition" -> bei 5a wäre "a" der gradeAddition Teil)
+// und mit einer Liste von Kursen für die Oberstufe. Wird auf dem Backend Server anstatt in der App gemacht,
+// damit die Funktionalität schon da ist was wichtig für Benachrichtigungen wird, weil bei denen auf dem Backend Server
+// alles sortiert werden *muss*
 @RestController
 @RequestMapping("/substitutionPlan")
 public class SubstitutionPlanController {
@@ -21,6 +26,8 @@ public class SubstitutionPlanController {
 		this.substitutionPlanService = substitutionPlanService;
 	}
 
+	// Gibt ein "DashboardSummaryResponse" zurück, was extra fürs Dashboard ist mit Anzahl der Vertretungseinträge und
+	// Nachrichten des Tages
 	@GetMapping("/summary")
 	public ResponseEntity<ApiResponse> getSummary(@RequestParam(value = "grade", defaultValue = "-1") int grade,
 												  @RequestParam(value = "gradeAddition", defaultValue = "") String gradeAddition,
@@ -43,6 +50,9 @@ public class SubstitutionPlanController {
 		return ApiResponse.ok(summaryResponse).create();
 	}
 
+	// Gibt die Einträge des Vertretungsplan für "today" oder "next" zurück
+	// Dabei ist "today" genau der heutige Tag und "next" ist der erste Vertretungsplan von irgendeinem Tag nach heute
+	// Bedeutet z.B. in den Ferien der für den ersten Schultag oder am Freitag der für Montag
 	@GetMapping("/get/{day}")
 	public ResponseEntity<ApiResponse> getSubstitutions(@PathVariable("day") String day,
 														@RequestParam(value = "grade", defaultValue = "-1") int grade,

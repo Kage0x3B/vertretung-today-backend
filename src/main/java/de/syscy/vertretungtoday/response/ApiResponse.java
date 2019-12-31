@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.Serializable;
 
+// Eine Klasse die mir hilft bessere und einheitliche REST Antworten zu erstellen
+// Praktisch nur ganz viele überladene Methoden um die Klasse praktisch zu benutzen zu machen mit verschiedenen
+// Arten von Antworten und Fehlerantworten und dann noch eine größere Methode die aus irgendeiner Java Exception
+// eine schöne Antwort macht.
 @Data
 @NoArgsConstructor
 @Accessors(chain = true)
